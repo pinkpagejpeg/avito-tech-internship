@@ -1,0 +1,1 @@
+export { useTypedSelector, useAppDispatch } from './hooks'

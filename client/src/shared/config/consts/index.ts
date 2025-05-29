@@ -1,0 +1,1 @@
+export { BOARDS_ROUTE, BOARD_ROUTE, ISSUES_ROUTE } from './routes'
