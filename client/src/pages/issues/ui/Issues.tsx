@@ -51,7 +51,6 @@ export const Issues: FC = () => {
                     </Typography>
 
                     <Stack spacing={2} direction='row' mb={3}>
-                        {/* Эти компоненты можно обернуть в Box для отступов, если нужно */}
                         <Search onChange={setSearchHandler} />
                         <IssueFilters onFiltersChange={setFiltersHandler} />
                     </Stack>

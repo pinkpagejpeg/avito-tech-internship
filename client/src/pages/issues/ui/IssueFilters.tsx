@@ -78,7 +78,7 @@ export const IssueFilters: FC<IssueFiltersProps> = ({ onFiltersChange, boards = 
                 </Grid>
 
                 {/* Фильтр по исполнителю */}
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                {/* <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <FormControl fullWidth size='small'>
                         <InputLabel>Исполнитель</InputLabel>
                         <Select
@@ -94,18 +94,7 @@ export const IssueFilters: FC<IssueFiltersProps> = ({ onFiltersChange, boards = 
                             ))}
                         </Select>
                     </FormControl>
-                </Grid>
-
-                {/* Поиск по названию задачи */}
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <TextField
-                        label='Название задачи'
-                        size='small'
-                        fullWidth
-                        value={filters.title}
-                        onChange={(e) => handleChange('title', e.target.value)}
-                    />
-                </Grid>
+                </Grid> */}
             </Grid>
         </Box >
     );
