@@ -1,2 +1,2 @@
-export { getIssues } from './issueApi'
-export { getBoards } from './boardApi'
+export { IssueService } from './issueApi'
+export { BoardService } from './boardApi'

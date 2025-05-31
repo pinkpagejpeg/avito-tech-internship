@@ -1,6 +1,8 @@
 import { $host } from './http'
 
-export const getIssues = async () => {
-    const { data } = await $host.get(`/tasks`)
-    return data
+export class IssueService {
+    static async getAll() {
+        const { data } = await $host.get(`/tasks`)
+        return data
+    }
 }
