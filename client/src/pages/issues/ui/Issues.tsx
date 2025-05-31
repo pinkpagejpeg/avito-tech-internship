@@ -1,45 +1,28 @@
-import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material'
+import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material'
 import { fetchIssues } from 'entities/issues'
-import { useEffect, type FC } from 'react'
+import { useEffect, useState, type FC } from 'react'
 import { useAppDispatch, useTypedSelector } from 'shared/store'
-import { NavBar, Search } from 'shared/ui'
-import { IssueCard } from './IssueCard'
+import { Loader, NavBar, Search } from 'shared/ui'
 import { IssueFilters } from './IssueFilters'
+import { IssueList } from './IssueList'
+import { fetchBoards } from 'entities/boards'
+import { useIssues } from '../lib'
 
 export const Issues: FC = () => {
     const dispatch = useAppDispatch()
-    const { issues } = useTypedSelector(state => state.issue)
+    const { issues, error, loading } = useTypedSelector(state => state.issue)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [filters, setFilters] = useState({
+        status: '',
+        board: '',
+    })
+    const filteredAndSearchedIssues = useIssues(issues, filters, searchQuery)
 
+    // Отправка запроса на получение списка задач и досок
     useEffect(() => {
-        const timeoutIssues = getIssues()
-
-        return () => {
-            clearTimeout(timeoutIssues)
-        }
-    }, [])
-
-    const getIssues = () => {
         dispatch(fetchIssues())
-
-        return setTimeout(() => {
-            getIssues()
-        }, import.meta.env.DEFAULT_TIMEOUT_MS)
-    }
-
-    const setSearchHandler = (value: string) => {
-        // dispatch(setSearch(value === '' ? null : value))
-        dispatch(fetchIssues())
-    }
-
-    const setFiltersHandler = (filters: {
-        status: string;
-        board: string;
-        title: string;
-        assignee: string;
-    }) => {
-        // dispatch(setFilters(value === '' ? null : value))
-        dispatch(fetchIssues())
-    }
+        dispatch(fetchBoards())
+    }, [dispatch])
 
     return (
         <>
@@ -50,16 +33,32 @@ export const Issues: FC = () => {
                         Список задач
                     </Typography>
 
-                    <Stack spacing={2} direction='row' mb={3}>
-                        <Search onChange={setSearchHandler} />
-                        <IssueFilters onFiltersChange={setFiltersHandler} />
-                    </Stack>
+                    <Grid
+                        container
+                        spacing={2}
+                        mb={3}
+                        direction='row'
+                        sx={{
+                            justifyContent: 'space-between',
+                        }}>
+                        <Grid size={{ xs: 4 }}>
+                            <Search onChange={setSearchQuery} inputValue={searchQuery} />
+                        </Grid>
+                        <Grid size={{ xs: 8 }}>
+                            <IssueFilters filters={filters} onFiltersChange={setFilters} />
+                        </Grid>
+                    </Grid>
 
-                    <Stack spacing={2}>
-                        {issues.map((item, index) => (
-                            <IssueCard key={index} issue={item} />
-                        ))}
-                    </Stack>
+                    {/* Вывод списка задач */}
+                    {loading ? (
+                        <Loader />
+                    ) : error ? (
+                        <Typography variant='h5' fontWeight='bold' gutterBottom textAlign='center'>
+                            Произошла ошибка: {error}
+                        </Typography>
+                    ) : (
+                        <IssueList issues={filteredAndSearchedIssues} />
+                    )}
 
                     <Box mt={4} textAlign='end'>
                         <Button variant='contained' color='primary'>

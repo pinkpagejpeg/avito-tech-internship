@@ -20,6 +20,7 @@ const IssuesSlice = createSlice({
             .addCase(fetchIssues.pending, createPendingHandler<IIssuesState>())
             .addCase(fetchIssues.fulfilled, (state: IIssuesState, action: PayloadAction<IIssue[]>) => {
                 state.loading = false
+                state.error = null
                 state.issues = action.payload
             })
             .addCase(fetchIssues.rejected, createRejectedHandler<IIssuesState>())

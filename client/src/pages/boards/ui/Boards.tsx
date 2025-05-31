@@ -1,29 +1,11 @@
 import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material'
-import { fetchBoards } from 'entities/boards'
-import { useEffect, type FC } from 'react'
+import { type FC } from 'react'
 import { Link } from 'react-router-dom'
-import { useAppDispatch, useTypedSelector } from 'shared/store'
+import { useTypedSelector } from 'shared/store'
 import { NavBar } from 'shared/ui'
 
 export const Boards: FC = () => {
-    const dispatch = useAppDispatch()
     const { boards } = useTypedSelector(state => state.board)
-
-    useEffect(() => {
-        const timeoutBoards = getBoards()
-
-        return () => {
-            clearTimeout(timeoutBoards)
-        }
-    }, [])
-
-    const getBoards = () => {
-        dispatch(fetchBoards())
-
-        return setTimeout(() => {
-            getBoards()
-        }, import.meta.env.DEFAULT_TIMEOUT_MS)
-    }
 
     return (
         <>

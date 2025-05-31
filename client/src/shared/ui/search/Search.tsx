@@ -1,23 +1,20 @@
 import { TextField, InputAdornment, IconButton } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import ClearIcon from '@mui/icons-material/Clear'
-import { FC, useState } from 'react'
+import { FC } from 'react'
 
 interface SearchProps {
     onChange: (value: string) => void
+    inputValue:  string
     placeholder?: string
 }
 
-export const Search: FC<SearchProps> = ({ onChange, placeholder = 'Поиск' }) => {
-    const [inputValue, setInputValue] = useState('')
-
+export const Search: FC<SearchProps> = ({ inputValue, onChange, placeholder = 'Поиск' }) => {
     const handleClear = () => {
-        setInputValue('')
         onChange('')
     }
 
     const changeInputHandler = (value: string) => {
-        setInputValue(value)
         onChange(value)
     }
 
