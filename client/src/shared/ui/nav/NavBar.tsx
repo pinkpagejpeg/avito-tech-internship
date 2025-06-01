@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom'
 import { FC } from 'react'
 
 interface INavBarProps {
-    openCreateModal: () => void
+    openCreateModal: (mode: 'create' | 'edit') => void
 }
 
 export const NavBar: FC<INavBarProps> = ({ openCreateModal }) => {
     const createIssueButtonHandler = () => {
-        openCreateModal()
+        openCreateModal('create')
     }
 
     return (

@@ -9,8 +9,10 @@ import { ModalForm, NavBar } from 'shared/ui'
 export const Boards: FC = () => {
     const { boards } = useTypedSelector(state => state.board)
     const [modalOpen, setModalOpen] = useState(false)
+    const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
 
-    const openCreateModal = () => {
+     const openModal = (mode: 'create' | 'edit') => {
+        setModalMode(mode)
         setModalOpen(true)
     }
 
@@ -20,7 +22,7 @@ export const Boards: FC = () => {
 
     return (
         <>
-            <NavBar openCreateModal={openCreateModal} />
+            <NavBar openCreateModal={openModal} />
             <Container maxWidth='md' sx={{ mt: 4 }}>
                 <Paper elevation={3} sx={{ p: 3 }}>
                     <Typography variant='h4' fontWeight='bold' gutterBottom>
@@ -45,7 +47,7 @@ export const Boards: FC = () => {
             </Container>
             <ModalForm
                 open={modalOpen}
-                mode='create'
+                mode={modalMode}
                 fromPage='boards'
                 onClose={setModalOpen}
                 onSubmit={createIssueHandler}

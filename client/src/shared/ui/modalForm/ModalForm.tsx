@@ -11,24 +11,27 @@ import {
   Typography
 } from '@mui/material'
 import { useEffect, useState, type FC } from 'react'
-import { ICreateIssue, IIssue } from 'entities/issues'
+import { ICreateIssue } from 'entities/issues'
 import { useTypedSelector } from 'shared/store'
 import { Link } from 'react-router-dom'
+import { IssueService } from 'shared/api'
+import { IUpdateIssue } from 'entities/issues/model/types'
+import { useFetching } from 'shared/lib'
 
 interface ModalFormProps {
   open: boolean
   mode: 'create' | 'edit'
   fromPage: string
-  initialData?: Partial<IIssue>
+  issueId?: number | null
   onClose: React.Dispatch<React.SetStateAction<boolean>>
-  onSubmit: (issue) => void
+  onSubmit: (issue: ICreateIssue | IUpdateIssue) => Promise<void>
 }
 
 export const ModalForm: FC<ModalFormProps> = ({
   open,
   mode,
   fromPage,
-  initialData = {},
+  issueId,
   onClose,
   onSubmit
 }) => {
@@ -39,37 +42,65 @@ export const ModalForm: FC<ModalFormProps> = ({
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High' | ''>('')
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState<'Backlog' | 'InProgress' | 'Done' | ''>('')
   const [boardId, setBoardId] = useState<number | ''>('')
   const [assigneeId, setAssigneeId] = useState<number | ''>('')
 
-  useEffect(() => {
-    // if (initialData) {
-    //   setTitle(initialData.title ?? '')
-    //   setDescription(initialData.description ?? '')
-    //   setPriority(initialData.priority ?? '')
-    //   setStatus(initialData.status ?? '')
-    //   setBoardId(initialData.boardId ?? '')
-    //   setAssigneeId(initialData.assignee?.id ?? '')
-    // }
-  }, [initialData, open])
+  const [fetchIssue, isIssueLoading, issueError] = useFetching(async (id: number) => {
+    const { data } = await IssueService.getById(id)
+    const board = boards.find(item => item.name === data.boardName)
 
-  const handleSubmit = () => {
+    setTitle(data.title)
+    setDescription(data.description)
+    setPriority(data.priority)
+    setStatus(data.status)
+    setBoardId(board.id)
+    setAssigneeId(data.assignee?.id)
+  })
+
+  useEffect(() => {
+    if (open && mode === 'edit' && issueId) {
+      fetchIssue(issueId)
+    }
+  }, [issueId, open])
+
+  useEffect(() => {
+  if (!open) {
+    setTitle('')
+    setDescription('')
+    setPriority('')
+    setStatus('')
+    setBoardId('')
+    setAssigneeId('')
+  }
+}, [open])
+
+  const handleSubmit = async () => {
     if (!title.trim()) return
     if (!description.trim()) return
     if (!priority) return
     if (!assigneeId) return
     if (!boardId) return
+    if (!status) return
 
     if (mode === 'create') {
-      const issue: ICreateIssue = {
+      onSubmit({
         title,
         description,
         priority,
         assigneeId,
-        boardId 
-      }
-      onSubmit(issue)
+        boardId
+      })
+    }
+
+    if (mode === 'edit') {
+      onSubmit({
+        title,
+        description,
+        priority,
+        status,
+        assigneeId
+      })
     }
 
     onClose(false)
@@ -115,7 +146,7 @@ export const ModalForm: FC<ModalFormProps> = ({
             required
           />
 
-          <FormControl fullWidth>
+          <FormControl fullWidth disabled={mode === 'edit'}>
             <InputLabel>Проект</InputLabel>
             <Select value={boardId} onChange={(e) => setBoardId(Number(e.target.value))} required>
               {boards.map((board) => (
@@ -126,7 +157,7 @@ export const ModalForm: FC<ModalFormProps> = ({
 
           <FormControl fullWidth>
             <InputLabel>Приоритет</InputLabel>
-            <Select value={priority} onChange={(e) => setPriority(e.target.value)}required>
+            <Select value={priority} onChange={(e) => setPriority(e.target.value)} required>
               {priorities.map((p) => (
                 <MenuItem key={p} value={p}>{p}</MenuItem>
               ))}

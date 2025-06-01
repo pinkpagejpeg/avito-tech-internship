@@ -1,16 +1,20 @@
-import { Box, Card, CardContent, Chip, Container, Grid, Paper, Typography } from '@mui/material'
+import { Container, Grid, Paper, Typography } from '@mui/material'
 import { useEffect, useState, type FC } from 'react'
 import { useParams } from 'react-router-dom'
 import { BoardService, IssueService } from 'shared/api'
 import { useTypedSelector } from 'shared/store'
 import { Loader, ModalForm, NavBar } from 'shared/ui'
-import { useFetching } from '../lib'
 import { IBoard } from 'entities/boards'
 import { ICreateIssue, IIssue } from 'entities/issues'
+import { IUpdateIssue } from 'entities/issues/model/types'
+import { BoardCard } from './BoardCard'
+import { useFetching } from 'shared/lib'
 
 export const Board: FC = () => {
     const { id } = useParams<{ id: string }>()
     const [modalOpen, setModalOpen] = useState(false)
+    const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
+    const [issueId, setIssueId] = useState<number | null>(null)
     const [board, setBoard] = useState<IBoard | null>(null)
     const [boardIssues, setBoardIssues] = useState<IIssue[]>([])
     const { boards } = useTypedSelector(state => state.board)
@@ -35,7 +39,8 @@ export const Board: FC = () => {
         return boardIssues.filter((issue) => issue.status === status)
     }
 
-    const openCreateModal = () => {
+    const openModal = (mode: 'create' | 'edit') => {
+        setModalMode(mode)
         setModalOpen(true)
     }
 
@@ -44,9 +49,17 @@ export const Board: FC = () => {
         fetchBoardIssues(id)
     }
 
+    const updateIssueHandler = async (issue: IUpdateIssue) => {
+        if (issueId) {
+            await IssueService.update(issue, issueId)
+            fetchBoardIssues(id)
+            setIssueId(null)
+        }
+    }
+
     return (
         <>
-            <NavBar openCreateModal={openCreateModal} />
+            <NavBar openCreateModal={openModal} />
             <Container maxWidth='md' sx={{ mt: 4 }}>
                 <Paper elevation={3} sx={{ p: 3 }}>
                     {board &&
@@ -79,19 +92,12 @@ export const Board: FC = () => {
                                             </Typography>
 
                                             {getIssuesByStatus(value).map((issue) => (
-                                                <Card key={issue.id} sx={{ mb: 2 }}>
-                                                    <CardContent>
-                                                        <Typography variant='subtitle1' fontWeight='bold'>
-                                                            {issue.title}
-                                                        </Typography>
-                                                        <Typography variant='body2' color='text.secondary'>
-                                                            {issue.description}
-                                                        </Typography>
-                                                        <Box mt={1}>
-                                                            <Chip label={issue.assignee.fullName} size='small' />
-                                                        </Box>
-                                                    </CardContent>
-                                                </Card>
+                                                <BoardCard
+                                                    key={issue.id}
+                                                    openEditModal={openModal}
+                                                    setIssueId={setIssueId}
+                                                    issue={issue}
+                                                />
                                             ))}
                                         </Paper>
                                     </Grid>
@@ -102,10 +108,11 @@ export const Board: FC = () => {
             </Container>
             <ModalForm
                 open={modalOpen}
-                mode='create'
+                mode={modalMode}
+                issueId={issueId}
                 fromPage='board'
                 onClose={setModalOpen}
-                onSubmit={createIssueHandler}
+                onSubmit={modalMode === 'create' ? createIssueHandler : updateIssueHandler}
             />
         </>
     );

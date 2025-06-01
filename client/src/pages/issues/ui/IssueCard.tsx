@@ -3,11 +3,12 @@ import { IIssue } from 'entities/issues'
 
 interface IIssueCardProps {
     issue: IIssue
+    openModal: (id: number) => void
 }
 
-export const IssueCard = ({ issue }: IIssueCardProps) => {
+export const IssueCard = ({ issue, openModal }: IIssueCardProps) => {
     return (
-        <Paper variant='outlined' sx={{ p: 2 }}>
+        <Paper variant='outlined' sx={{ p: 2 }} onClick={() => openModal(issue.id)}>
             <Box display='flex' justifyContent='space-between' alignItems='center'>
                 <Typography variant='subtitle1' fontWeight='medium'>
                     {issue.title}

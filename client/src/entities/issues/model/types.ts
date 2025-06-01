@@ -27,3 +27,11 @@ export interface ICreateIssue {
     priority: 'Low' | 'Medium' | 'High',
     title: string,
 }
+
+export interface IUpdateIssue {
+    assigneeId: number,
+    description: string,
+    priority: 'Low' | 'Medium' | 'High',
+    title: string,
+    status: 'Backlog' | 'InProgress' | 'Done'
+}
