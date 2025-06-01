@@ -2,7 +2,15 @@ import { AppBar, Box, Button, Container, Toolbar } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { FC } from 'react'
 
-export const NavBar: FC = () => {
+interface INavBarProps {
+    openCreateModal: () => void
+}
+
+export const NavBar: FC<INavBarProps> = ({ openCreateModal }) => {
+    const createIssueButtonHandler = () => {
+        openCreateModal()
+    }
+
     return (
         <AppBar position='static' color='primary'>
             <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -16,7 +24,7 @@ export const NavBar: FC = () => {
                         </Button>
                     </Box>
 
-                    <Button variant='outlined' color='inherit'>
+                    <Button variant='outlined' color='inherit' onClick={createIssueButtonHandler}>
                         Создать задачу
                     </Button>
                 </Container>

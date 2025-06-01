@@ -1,15 +1,26 @@
 import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material'
-import { type FC } from 'react'
+import { ICreateIssue } from 'entities/issues'
+import { useState, type FC } from 'react'
 import { Link } from 'react-router-dom'
+import { IssueService } from 'shared/api'
 import { useTypedSelector } from 'shared/store'
-import { NavBar } from 'shared/ui'
+import { ModalForm, NavBar } from 'shared/ui'
 
 export const Boards: FC = () => {
     const { boards } = useTypedSelector(state => state.board)
+    const [modalOpen, setModalOpen] = useState(false)
+
+    const openCreateModal = () => {
+        setModalOpen(true)
+    }
+
+    const createIssueHandler = async (issue: ICreateIssue) => {
+        await IssueService.create(issue)
+    }
 
     return (
         <>
-            <NavBar />
+            <NavBar openCreateModal={openCreateModal} />
             <Container maxWidth='md' sx={{ mt: 4 }}>
                 <Paper elevation={3} sx={{ p: 3 }}>
                     <Typography variant='h4' fontWeight='bold' gutterBottom>
@@ -32,6 +43,13 @@ export const Boards: FC = () => {
                     </Stack>
                 </Paper>
             </Container>
+            <ModalForm
+                open={modalOpen}
+                mode='create'
+                fromPage='boards'
+                onClose={setModalOpen}
+                onSubmit={createIssueHandler}
+            />
         </>
     );
 }

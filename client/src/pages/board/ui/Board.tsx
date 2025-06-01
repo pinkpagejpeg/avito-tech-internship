@@ -1,15 +1,16 @@
 import { Box, Card, CardContent, Chip, Container, Grid, Paper, Typography } from '@mui/material'
 import { useEffect, useState, type FC } from 'react'
 import { useParams } from 'react-router-dom'
-import { BoardService } from 'shared/api'
+import { BoardService, IssueService } from 'shared/api'
 import { useTypedSelector } from 'shared/store'
-import { Loader, NavBar } from 'shared/ui'
+import { Loader, ModalForm, NavBar } from 'shared/ui'
 import { useFetching } from '../lib'
 import { IBoard } from 'entities/boards'
-import { IIssue } from 'entities/issues'
+import { ICreateIssue, IIssue } from 'entities/issues'
 
 export const Board: FC = () => {
     const { id } = useParams<{ id: string }>()
+    const [modalOpen, setModalOpen] = useState(false)
     const [board, setBoard] = useState<IBoard | null>(null)
     const [boardIssues, setBoardIssues] = useState<IIssue[]>([])
     const { boards } = useTypedSelector(state => state.board)
@@ -34,9 +35,18 @@ export const Board: FC = () => {
         return boardIssues.filter((issue) => issue.status === status)
     }
 
+    const openCreateModal = () => {
+        setModalOpen(true)
+    }
+
+    const createIssueHandler = async (issue: ICreateIssue) => {
+        await IssueService.create(issue)
+        fetchBoardIssues(id)
+    }
+
     return (
         <>
-            <NavBar />
+            <NavBar openCreateModal={openCreateModal} />
             <Container maxWidth='md' sx={{ mt: 4 }}>
                 <Paper elevation={3} sx={{ p: 3 }}>
                     {board &&
@@ -90,6 +100,13 @@ export const Board: FC = () => {
                         )}
                 </Paper>
             </Container>
+            <ModalForm
+                open={modalOpen}
+                mode='create'
+                fromPage='board'
+                onClose={setModalOpen}
+                onSubmit={createIssueHandler}
+            />
         </>
     );
 }

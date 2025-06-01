@@ -19,3 +19,11 @@ export interface IIssue {
     boardId: number,
     boardName: string,
 }
+
+export interface ICreateIssue {
+    assigneeId: number,
+    boardId: number,
+    description: string,
+    priority: 'Low' | 'Medium' | 'High',
+    title: string,
+}
