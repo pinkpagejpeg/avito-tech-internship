@@ -2,20 +2,26 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { ICommonState } from '../../state'
 
 /**
- * Handles the rejected state for any slice with a common state structure.
+ * Обработчик состояния ошибки (rejected) для redux slice с общей структурой состояния
+ * Устанавливает индикатор загрузки в false и записывает сообшение об ошибке из payload, 
+ * либо устанавливает стандартное сообщение
  * 
- * @param state - The slice state that conforms to ICommonState.
- * @param action - The rejected action with a string payload (error message).
+ * @param state - состояние redux slice, соответствующее интерфейсу ICommonState
+ * @param action - payload action с сообщением об ошибке
  */
-export const handleRejected = <T extends ICommonState>(state: T, action: PayloadAction<string | undefined>) => {
+export const handleRejected = <T extends ICommonState>(
+    state: T,
+    action: PayloadAction<string | undefined>
+) => {
     state.loading = false;
     state.error = action.payload || `Неизвестная ошибка`;
 };
 
 /**
- * Factory function to create a reusable rejected handler for extraReducers.
+ * Фабрика функций для создания обработчика состояния ошибки (rejected)
+ * Позволяет переиспользовать один и тот же обработчик в extraReducers
  * 
- * @returns A pre-configured handler function for rejected cases.
+ * @returns функция-обработчик для состояния состояния ошибки (rejected)
  */
 export const createRejectedHandler = <T extends ICommonState>() =>
     (state: T, action: PayloadAction<string | undefined>) => handleRejected(state, action);

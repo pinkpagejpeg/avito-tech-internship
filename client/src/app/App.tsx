@@ -3,6 +3,7 @@ import { AppRouter } from './routers'
 import './styles/App.scss'
 import { MainProvider } from './providers'
 
+// Главный компонент приложения
 const App: FC = () => {
   return (
     <div>

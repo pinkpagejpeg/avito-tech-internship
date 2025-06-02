@@ -1,2 +1,10 @@
 export { default as issueReducer } from './IssuesSlice'
-export type { IIssue, IIssuesState, ICreateIssue } from './types'
+export {
+    type IIssue,
+    type IIssuesState,
+    type ICreateIssue,
+    type IUpdateIssue,
+    type IAsignee,
+    Priority,
+    Status
+} from './types'

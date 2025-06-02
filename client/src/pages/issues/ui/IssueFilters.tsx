@@ -1,30 +1,33 @@
-import {
-    Box,
-    MenuItem,
-    Select,
-    FormControl,
-    InputLabel,
-    SelectChangeEvent,
-} from '@mui/material'
+import { Box } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import { FC } from 'react'
 import { useTypedSelector } from 'shared/store'
+import { SelectFilter } from './IssueFilter'
+import { Status } from 'entities/issues'
 
 interface IssueFiltersProps {
     filters: {
-        status: string;
-        board: string;
+        status: string; // фильтр по статусу
+        board: string;  // фильтр по проекту (доске)
     },
-    onFiltersChange: (filters: {
+    onFiltersChange: (filters: { // Обработчик изменения значения фильтра
         status: string;
         board: string;
     }) => void;
 }
 
+// Компонент фильтров по статусу и проекту (доске) для задач
 export const IssueFilters: FC<IssueFiltersProps> = ({ filters, onFiltersChange }) => {
+    // Получение списка проектов (досок) из стора для фильтрации
     const { boards } = useTypedSelector(state => state.board)
-    const statusOptions = ['Backlog', 'InProgress', 'Done']
 
+    // Получение списка названий проектов (досок) для фильтрации
+    const boardOptions = boards.map((b) => b.name)
+
+    // Список статусов для фильтрации
+    const statusOptions = Object.values(Status)
+
+    // Обработчик изменения значения фильтра
     const handleChange = (
         key: keyof typeof filters,
         value: string
@@ -35,43 +38,25 @@ export const IssueFilters: FC<IssueFiltersProps> = ({ filters, onFiltersChange }
 
     return (
         <Box>
-            <Grid container spacing={2} direction="row" sx={{ justifyContent: "flex-end" }}>
+            <Grid container spacing={2} direction='row' sx={{ justifyContent: 'flex-end' }}>
                 {/* Фильтр по статусу */}
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <FormControl fullWidth size='small'>
-                        <InputLabel>Статус</InputLabel>
-                        <Select
-                            value={filters.status}
-                            label='Статус'
-                            onChange={(e: SelectChangeEvent) => handleChange('status', e.target.value)}
-                        >
-                            <MenuItem value=''>Все</MenuItem>
-                            {statusOptions.map((option) => (
-                                <MenuItem key={option} value={option}>
-                                    {option}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <SelectFilter
+                        label="Статус"
+                        value={filters.status}
+                        options={statusOptions}
+                        onChange={(value) => handleChange('status', value)}
+                    />
                 </Grid>
 
                 {/* Фильтр по доске */}
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <FormControl fullWidth size='small'>
-                        <InputLabel>Доска</InputLabel>
-                        <Select
-                            value={filters.board}
-                            label='Доска'
-                            onChange={(e: SelectChangeEvent) => handleChange('board', e.target.value)}
-                        >
-                            <MenuItem value="">Все</MenuItem>
-                            {boards.map((board) => (
-                                <MenuItem key={board.name} value={board.name}>
-                                    {board.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <SelectFilter
+                        label="Доска"
+                        value={filters.board}
+                        options={boardOptions}
+                        onChange={(value) => handleChange('board', value)}
+                    />
                 </Grid>
             </Grid>
         </Box >

@@ -3,10 +3,13 @@ import { Link } from 'react-router-dom'
 import { FC } from 'react'
 
 interface INavBarProps {
-    openCreateModal: (mode: 'create' | 'edit') => void
+    openCreateModal: (mode: 'create' | 'edit') => void // функция для открытия модального окна
 }
 
+// Компонент навигационной панели (Header)
 export const NavBar: FC<INavBarProps> = ({ openCreateModal }) => {
+    // Обработчик нажатия на кнопку "Создать задачу", 
+    // который открывает модальное окно для создания задачи
     const createIssueButtonHandler = () => {
         openCreateModal('create')
     }

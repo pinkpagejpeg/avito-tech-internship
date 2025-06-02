@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import { IBoard } from '../model/types'
 import { BoardService } from 'shared/api'
 
+// Асинхронный redux thunk для получения списка проектов (досок) с сервера
 export const fetchBoards = createAsyncThunk<IBoard[], void, { rejectValue: string }>(
     "board/fetchBoards",
     async (_, { rejectWithValue }) => {

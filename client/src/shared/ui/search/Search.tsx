@@ -9,11 +9,14 @@ interface SearchProps {
     placeholder?: string
 }
 
+// Компонент поиска
 export const Search: FC<SearchProps> = ({ inputValue, onChange, placeholder = 'Поиск' }) => {
+    // Обработчик нажатия на кнопку для очистки поля ввода
     const handleClear = () => {
         onChange('')
     }
 
+    // Обработчик изменения значения в поле ввода
     const changeInputHandler = (value: string) => {
         onChange(value)
     }
@@ -28,11 +31,13 @@ export const Search: FC<SearchProps> = ({ inputValue, onChange, placeholder = '�
             onChange={(e) => changeInputHandler(e.target.value)}
             slotProps={{
                 input: {
+                    // Иконка поиска
                     startAdornment: (
                         <InputAdornment position='start'>
                             <SearchIcon color='action' />
                         </InputAdornment>
                     ),
+                    // Иконка очистки
                     endAdornment: inputValue && (
                         <InputAdornment position='end'>
                             <IconButton onClick={handleClear} size='small'>

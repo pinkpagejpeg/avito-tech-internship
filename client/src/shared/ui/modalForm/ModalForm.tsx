@@ -1,32 +1,22 @@
-import {
-  Box,
-  Button,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Modal,
-  Select,
-  TextField,
-  Typography
-} from '@mui/material'
+import { Box, Button, Grid, Modal, TextField, Typography } from '@mui/material'
 import { useEffect, useState, type FC } from 'react'
-import { ICreateIssue } from 'entities/issues'
+import { ICreateIssue, IUpdateIssue, Status, Priority } from 'entities/issues'
 import { useTypedSelector } from 'shared/store'
 import { Link } from 'react-router-dom'
 import { IssueService } from 'shared/api'
-import { IUpdateIssue } from 'entities/issues/model/types'
 import { useFetching } from 'shared/lib'
+import { SelectInput } from '../selectInput/SelectInput'
 
 interface ModalFormProps {
-  open: boolean
-  mode: 'create' | 'edit'
-  fromPage: string
-  issueId?: number | null
-  onClose: React.Dispatch<React.SetStateAction<boolean>>
-  onSubmit: (issue: ICreateIssue | IUpdateIssue) => Promise<void>
+  open: boolean           // указатель отображения модального окна
+  mode: 'create' | 'edit' // режим модального окна (создание или редактирование задачи)
+  fromPage: string        // откуда было открыто модальное окно (с какой страницы)
+  issueId?: number | null // ID задачи для редактирования (только при режиме редактирования)
+  onClose: React.Dispatch<React.SetStateAction<boolean>> // функция для закрытия модального окна
+  onSubmit: (issue: ICreateIssue | IUpdateIssue) => Promise<void> // обработчик отправки формы
 }
 
+// Компонент модального окна, содержащего форму для редактирования/обновления задач
 export const ModalForm: FC<ModalFormProps> = ({
   open,
   mode,
@@ -35,21 +25,34 @@ export const ModalForm: FC<ModalFormProps> = ({
   onClose,
   onSubmit
 }) => {
-  const priorities = ['Low', 'Medium', 'High']
-  const statuses = ['Backlog', 'InProgress', 'Done']
-  const { boards } = useTypedSelector(state => state.board)
-  const { users } = useTypedSelector(state => state.user)
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [priority, setPriority] = useState<'Low' | 'Medium' | 'High' | ''>('')
-  const [status, setStatus] = useState<'Backlog' | 'InProgress' | 'Done' | ''>('')
-  const [boardId, setBoardId] = useState<number | ''>('')
-  const [assigneeId, setAssigneeId] = useState<number | ''>('')
+  // Список приоритетов статусов для формы
+  const priorities = Object.values(Priority)
 
+  // Список значений статусов для формы
+  const statuses = Object.values(Status)
+
+  // Получение списка проектов (досок) из стора для формы
+  const { boards } = useTypedSelector(state => state.board)
+
+  // Получение списка пользователей (исполнителей) из стора для формы
+  const { users } = useTypedSelector(state => state.user)
+
+  // Локальные состояния для значений формы
+  const [title, setTitle] = useState('') // название задачи
+  const [description, setDescription] = useState('') // описание задачи
+  const [priority, setPriority] = useState<Priority | null>(null) // приоритет
+  const [status, setStatus] = useState<Status | null>(null) // статус
+  const [boardId, setBoardId] = useState<number | null>(null) // проект, к которому относится задача
+  const [assigneeId, setAssigneeId] = useState<number | null>(null) // исполнитель, к которому относится задача
+
+  // Создание функции для получения задачи по ID а также обработки ее загрузки и получения ошибки
   const [fetchIssue, isIssueLoading, issueError] = useFetching(async (id: number) => {
     const { data } = await IssueService.getById(id)
+
+    // Поиск проекта (доски) в списке по названию для получения ID
     const board = boards.find(item => item.name === data.boardName)
 
+    // Заполнение формы полученными данными задачи
     setTitle(data.title)
     setDescription(data.description)
     setPriority(data.priority)
@@ -58,52 +61,52 @@ export const ModalForm: FC<ModalFormProps> = ({
     setAssigneeId(data.assignee?.id)
   })
 
+  // При открытии формы в режиме редактирования и наличии ID задачи загружаются данные задачи
   useEffect(() => {
-    if (open && mode === 'edit' && issueId) {
+    if (open) {
+    if (mode === 'create') {
+      setStatus(Status.Backlog)
+    }
+
+    if (mode === 'edit' && issueId) {
       fetchIssue(issueId)
     }
-  }, [issueId, open])
-
-  useEffect(() => {
-  if (!open) {
-    setTitle('')
-    setDescription('')
-    setPriority('')
-    setStatus('')
-    setBoardId('')
-    setAssigneeId('')
   }
-}, [open])
+  }, [issueId, open, mode])
 
+  // Очищение формы после закрытия модального окна
+  useEffect(() => {
+    if (!open) {
+      setTitle('')
+      setDescription('')
+      setPriority(null)
+      setStatus(null)
+      setBoardId(null)
+      setAssigneeId(null)
+    }
+  }, [open])
+
+  // Функция для валидации формы
+  const isFormValid = () => (
+    Boolean(title.trim() && description.trim() && priority && assigneeId && boardId && status)
+  )
+
+  // Обработка отправки формы
   const handleSubmit = async () => {
-    if (!title.trim()) return
-    if (!description.trim()) return
-    if (!priority) return
-    if (!assigneeId) return
-    if (!boardId) return
-    if (!status) return
+    // Проверка на заполненность всех полей формы
+    if (!isFormValid()) return
 
+    // Данные, которые необходимы в обоих режимах
+    const baseData = { title, description, priority, assigneeId }
+
+    // В зависимости от режима передаются соответсвующие значения полей
     if (mode === 'create') {
-      onSubmit({
-        title,
-        description,
-        priority,
-        assigneeId,
-        boardId
-      })
+      await onSubmit({ ...baseData, boardId })
+    } else {
+      await onSubmit({ ...baseData, status })
     }
 
-    if (mode === 'edit') {
-      onSubmit({
-        title,
-        description,
-        priority,
-        status,
-        assigneeId
-      })
-    }
-
-    onClose(false)
+    onClose(false)  // Закрытие модального окна после отправки формы
   }
 
   return (
@@ -123,11 +126,13 @@ export const ModalForm: FC<ModalFormProps> = ({
           overflowY: 'auto',
         }}
       >
+        {/* Заголовок формы зависит от режима */}
         <Typography variant='h5' gutterBottom fontWeight='bold'>
           {mode === 'create' ? 'Создание' : 'Редактирование'} задачи
         </Typography>
 
         <Box display='flex' flexDirection='column' gap={2}>
+          {/* Поле для ввода названия задачи */}
           <TextField
             label='Название'
             value={title}
@@ -136,6 +141,7 @@ export const ModalForm: FC<ModalFormProps> = ({
             required
           />
 
+          {/* Поле для ввода описания задачи */}
           <TextField
             label='Описание'
             value={description}
@@ -146,47 +152,49 @@ export const ModalForm: FC<ModalFormProps> = ({
             required
           />
 
-          <FormControl fullWidth disabled={mode === 'edit'}>
-            <InputLabel>Проект</InputLabel>
-            <Select value={boardId} onChange={(e) => setBoardId(Number(e.target.value))} required>
-              {boards.map((board) => (
-                <MenuItem key={board.id} value={board.id}>{board.name}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {/* Выбор проекта */}
+          <SelectInput
+            label='Проект'
+            value={boardId}
+            options={boards.map(board => board.id)}
+            onChange={setBoardId}
+            disabled={mode === 'edit'}
+            getOptionLabel={(id) => boards.find(board => board.id === id)?.name || 'Неизвестно'}
+            required
+          />
 
-          <FormControl fullWidth>
-            <InputLabel>Приоритет</InputLabel>
-            <Select value={priority} onChange={(e) => setPriority(e.target.value)} required>
-              {priorities.map((p) => (
-                <MenuItem key={p} value={p}>{p}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {/* Выбор приоритета */}
+          <SelectInput
+            label='Приоритет'
+            value={priority}
+            options={priorities}
+            onChange={setPriority}
+            required
+          />
 
-          <FormControl fullWidth>
-            <InputLabel>Статус</InputLabel>
-            <Select value={status} onChange={(e) => setStatus(e.target.value)} required>
-              {statuses.map((s) => (
-                <MenuItem key={s} value={s}>{s}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {/* Выбор cтатуса */}
+          <SelectInput
+            label='Статус'
+            value={status}
+            options={statuses}
+            disabled={mode === 'create'}
+            onChange={setStatus}
+            required
+          />
 
-          <FormControl fullWidth>
-            <InputLabel>Исполнитель</InputLabel>
-            <Select
-              value={assigneeId}
-              onChange={(e) => setAssigneeId(Number(e.target.value))}
-              required
-            >
-              {users.map((user) => (
-                <MenuItem key={user.id} value={user.id}>{user.fullName}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {/* Выбор исполнителя */}
+          <SelectInput
+            label='Исполнитель'
+            value={assigneeId}
+            options={users.map(user => user.id)}
+            onChange={setAssigneeId}
+            getOptionLabel={(id) => users.find(user => user.id === id)?.fullName || 'Неизвестно'}
+            required
+          />
 
           <Grid container spacing={2} mt={1} justifyContent='space-between'>
+            {/* Кнопка для перезода на страницу проекта (доски), 
+            доступна только на странице всех задач */}
             <Grid>
               {fromPage === 'issues' && boardId && (
                 <Button color='primary' component={Link} to={`/board/${boardId}`}>
@@ -194,8 +202,10 @@ export const ModalForm: FC<ModalFormProps> = ({
                 </Button>
               )}
             </Grid>
+
+            {/* Наименование кнопки для отправки формы зависит от режима */}
             <Grid>
-              <Button variant='contained' onClick={handleSubmit}>
+              <Button variant='contained' onClick={handleSubmit} disabled={!isFormValid()}>
                 {mode === 'create' ? 'Создать' : 'Обновить'}
               </Button>
             </Grid>

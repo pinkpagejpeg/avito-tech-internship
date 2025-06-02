@@ -1,9 +1,10 @@
 import { ICommonState } from '../../state'
 
 /**
- * Handles the rejected state for any slice with a common state structure.
- * 
- * @param state - The slice state that conforms to ICommonState.
+ * Обработчик состояния загрузки (pending) для redux slice с общей структурой состояния
+ * Устанавливает индикатор загрузки в true и очищает ошибку
+ *
+ * @param state - состояние redux slice, соответствующее интерфейсу ICommonState
  */
 export const handlePending = <T extends ICommonState>(state: T) => {
     state.loading = true;
@@ -11,9 +12,10 @@ export const handlePending = <T extends ICommonState>(state: T) => {
 }
 
 /**
- * Factory function to create a reusable rejected handler for extraReducers.
+ * Фабрика функций для создания обработчика состояния загрузки (pending)
+ * Позволяет переиспользовать один и тот же обработчик в extraReducers
  * 
- * @returns A pre-configured handler function for rejected cases.
+ * @returns функция-обработчик для состояния загрузки (pending)
  */
-export const createPendingHandler = <T extends ICommonState>() => 
+export const createPendingHandler = <T extends ICommonState>() =>
     (state: T) => handlePending(state);

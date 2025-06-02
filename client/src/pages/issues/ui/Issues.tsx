@@ -1,5 +1,5 @@
 import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material'
-import { fetchIssues, ICreateIssue } from 'entities/issues'
+import { fetchIssues, ICreateIssue, IUpdateIssue } from 'entities/issues'
 import { useEffect, useState, type FC } from 'react'
 import { useAppDispatch, useTypedSelector } from 'shared/store'
 import { Loader, ModalForm, NavBar, Search } from 'shared/ui'
@@ -9,33 +9,50 @@ import { fetchBoards } from 'entities/boards'
 import { useIssues } from '../lib'
 import { fetchUsers } from 'entities/users'
 import { IssueService } from 'shared/api'
-import { IUpdateIssue } from 'entities/issues/model/types'
 
+// Компонент страницы списка всех задач
 export const Issues: FC = () => {
+    // Получение функции dispatch для отправки Redux экшенов
     const dispatch = useAppDispatch()
+
+    // Получение списка задач, состояний загрузки и ошибки из стора
     const { issues, error, loading } = useTypedSelector(state => state.issue)
+
+    // Состояние открытия/закрытия модального окна
     const [modalOpen, setModalOpen] = useState(false)
+
+    // Режим модального окна (создание или редактирование задачи)
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
+
+    // ID редактируемой задачи
     const [issueId, setIssueId] = useState<number | null>(null)
+
+    // Поисковой запрос
     const [searchQuery, setSearchQuery] = useState('')
+
+    // Перечень фильтров
     const [filters, setFilters] = useState({
         status: '',
         board: '',
     })
+
+    // Получение отфильтрованных и найденных задач
     const filteredAndSearchedIssues = useIssues(issues, filters, searchQuery)
 
-    // Отправка запроса на получение списка задач и досок
+    // Загрузка данных задач, проектов и пользователей (исполнителей) при монтировании
     useEffect(() => {
         dispatch(fetchIssues())
         dispatch(fetchBoards())
         dispatch(fetchUsers())
     }, [dispatch])
 
+    // Функция для отправки запроса на создание задачи
     const createIssueHandler = async (issue: ICreateIssue) => {
         await IssueService.create(issue)
         dispatch(fetchIssues())
     }
 
+    // Функция для отправки запроса на обновление задачи
     const updateIssueHandler = async (issue: IUpdateIssue) => {
         if (issueId) {
             await IssueService.update(issue, issueId)
@@ -44,6 +61,7 @@ export const Issues: FC = () => {
         }
     }
 
+    // Обработчик для открытия модального окна
     const openModal = (mode: 'create' | 'edit') => {
         setModalMode(mode)
         setModalOpen(true)
@@ -51,13 +69,16 @@ export const Issues: FC = () => {
 
     return (
         <>
+            {/* Навигационная панель (Header) */}
             <NavBar openCreateModal={openModal} />
+
             <Container maxWidth='md' sx={{ mt: 4 }}>
                 <Paper elevation={3} sx={{ p: 3 }}>
                     <Typography variant='h4' fontWeight='bold' gutterBottom>
                         Список задач
                     </Typography>
 
+                    {/* Поиск и фильтры */}
                     <Grid
                         container
                         spacing={2}
@@ -89,6 +110,7 @@ export const Issues: FC = () => {
                         />
                     )}
 
+                    {/* Кнопка для открытия модального окна для создания задач */}
                     <Box mt={4} textAlign='end'>
                         <Button variant='contained' color='primary' onClick={() => openModal('create')}>
                             Создать задачу
@@ -96,6 +118,8 @@ export const Issues: FC = () => {
                     </Box>
                 </Paper>
             </Container >
+
+            {/* Модальное окно для создания/редактирования задачи */}
             <ModalForm
                 open={modalOpen}
                 mode={modalMode}
