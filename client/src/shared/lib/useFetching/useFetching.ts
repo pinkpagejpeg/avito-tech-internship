@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 /**
  * Кастомный хук обертка для выполнения асинхронного запроса с обработкой загрузки и ошибок
@@ -19,7 +19,7 @@ export function useFetching<Args extends unknown[]>(
   const [isLoading, setIsLoading] = useState(false) // состояние загрузки
   const [error, setError] = useState('')            // состояние ошибки
 
-  const fetching = async (...args: Args): Promise<void> => {
+  const fetching = useCallback(async (...args: Args): Promise<void> => {
     try {
       // При выполнении запроса на сервер включается индикатор загрузки
       // и вызывается переданная асинхронная функция с запросом
@@ -32,7 +32,7 @@ export function useFetching<Args extends unknown[]>(
       // Вне зависимости от успешности выполнения запроса индикатор загрузки выключается
       setIsLoading(false)
     }
-  }
+  }, [callback])
 
   return [fetching, isLoading, error]
 }

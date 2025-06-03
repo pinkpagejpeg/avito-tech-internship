@@ -37,8 +37,9 @@ export const SelectInput: FC<SelectInputProps> = ({
 
     return (
         <FormControl fullWidth={fullWidth} disabled={disabled} required={required} size="small">
-            <InputLabel>{label}</InputLabel>
+            <InputLabel id='select-label'>{label}</InputLabel>
             <Select
+                labelId='select-label'
                 value={value ?? ''}
                 label={label}
                 onChange={handleChange}

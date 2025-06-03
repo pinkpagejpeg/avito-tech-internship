@@ -6,10 +6,34 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "baseUrl": "src",
+    //absolute import
+    "baseUrl": "./src",
     "paths": {
-      "shared/*": ["shared/*"]
+      "@/*": [
+        "*"
+      ],
+      "@shared/*": [
+        "shared/*"
+      ],
+      "@entities/*": [
+        "entities/*"
+      ],
+      "@features/*": [
+        "features/*"
+      ],
+      "@widgets/*": [
+        "widgets/*"
+      ],
+      "@pages/*": [
+        "pages/*"
+      ],
+      "@app/*": [
+        "app/*"
+      ]
     }
   },
-  "include": ["src"]
+  "include": [
+    "src",
+    "./jest.setup.ts"
+  ]
 }

@@ -1,14 +1,15 @@
 import { Box, Button, Container, Grid, Paper, Typography } from '@mui/material'
-import { fetchIssues, ICreateIssue, IUpdateIssue } from 'entities/issues'
+import { fetchIssues } from '@/entities/issues'
+import { ICreateIssue, IUpdateIssue } from '@shared/model'
 import { useEffect, useState, type FC } from 'react'
-import { useAppDispatch, useTypedSelector } from 'shared/store'
-import { Loader, ModalForm, NavBar, Search } from 'shared/ui'
+import { useAppDispatch, useTypedSelector } from '@shared/store'
+import { Loader, ModalForm, NavBar, Search } from '@shared/ui'
 import { IssueFilters } from './IssueFilters'
 import { IssueList } from './IssueList'
-import { fetchBoards } from 'entities/boards'
+import { fetchBoards } from '@/entities/boards'
 import { useIssues } from '../lib'
-import { fetchUsers } from 'entities/users'
-import { IssueService } from 'shared/api'
+import { fetchUsers } from '@/entities/users'
+import { IssueService } from '@shared/api'
 
 // Компонент страницы списка всех задач
 export const Issues: FC = () => {

@@ -1,15 +1,16 @@
 import { Container, Grid, Paper, Typography } from '@mui/material'
 import { useEffect, useState, type FC } from 'react'
 import { useParams } from 'react-router-dom'
-import { BoardService, IssueService } from 'shared/api'
-import { useAppDispatch, useTypedSelector } from 'shared/store'
-import { Loader, ModalForm, NavBar } from 'shared/ui'
-import { fetchBoards, IBoard } from 'entities/boards'
-import { fetchIssues, ICreateIssue, IUpdateIssue } from 'entities/issues'
+import { BoardService, IssueService } from '@shared/api'
+import { useAppDispatch, useTypedSelector } from '@shared/store'
+import { Loader, ModalForm, NavBar } from '@shared/ui'
+import { fetchBoards, IBoard } from '@entities/boards'
+import { fetchIssues } from '@entities/issues'
+import { ICreateIssue, IUpdateIssue } from '@shared/model'
 import { BoardIssueCard } from './BoardIssueCard'
-import { useFetching } from 'shared/lib'
-import { IBoardIssue } from 'entities/boards'
-import { fetchUsers } from 'entities/users'
+import { useFetching } from '@shared/lib'
+import { IBoardIssue } from '@entities/boards'
+import { fetchUsers } from '@entities/users'
 
 // Компонент страницы проекта (доски)
 export const Board: FC = () => {
@@ -62,7 +63,7 @@ export const Board: FC = () => {
         const board = boards.find(item => item.id === Number(id))
         setBoard(board)
         fetchBoardIssues(id)
-    }, [id])
+    }, [id, boards])
 
     // Фильтрация задач по статусу для распределения их по колонкам
     const getIssuesByStatus = (status: string) => {

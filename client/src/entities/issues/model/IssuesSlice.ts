@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { IIssue, IIssuesState } from './types'
 import { fetchIssues } from '../api'
-import { createPendingHandler, createRejectedHandler } from 'shared/store'
+import { createPendingHandler, createRejectedHandler } from '@shared/store'
 
 // Начальное состояние
 const initialState: IIssuesState = {

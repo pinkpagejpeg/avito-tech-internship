@@ -1,4 +1,4 @@
-import { IAsignee, Priority, Status } from 'entities/issues'
+import { IAsignee, Priority, Status } from "@/shared/model"
 
 // Интерфейс состояния Redux slice для проектов (досок)
 export interface IBoardsState {

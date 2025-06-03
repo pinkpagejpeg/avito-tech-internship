@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid'
 import { FC } from 'react'
 import { useTypedSelector } from 'shared/store'
 import { SelectFilter } from './IssueFilter'
-import { Status } from 'entities/issues'
+import { Status } from '@shared/model'
 
 interface IssueFiltersProps {
     filters: {

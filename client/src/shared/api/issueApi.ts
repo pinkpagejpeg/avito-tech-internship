@@ -1,4 +1,4 @@
-import { ICreateIssue, IUpdateIssue } from 'entities/issues'
+import { ICreateIssue, IUpdateIssue } from '@shared/model'
 import { $host } from './http'
 
 // Сервис для работы с API задач

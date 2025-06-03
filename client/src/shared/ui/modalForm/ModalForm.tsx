@@ -1,10 +1,10 @@
 import { Box, Button, Grid, Modal, TextField, Typography } from '@mui/material'
 import { useEffect, useState, type FC } from 'react'
-import { ICreateIssue, IUpdateIssue, Status, Priority } from 'entities/issues'
-import { useTypedSelector } from 'shared/store'
+import { ICreateIssue, IUpdateIssue, Status, Priority } from '@shared/model'
+import { useTypedSelector } from '@shared/store'
 import { Link } from 'react-router-dom'
-import { IssueService } from 'shared/api'
-import { useFetching } from 'shared/lib'
+import { IssueService } from '@shared/api'
+import { useFetching } from '@shared/lib'
 import { SelectInput } from '../selectInput/SelectInput'
 
 interface ModalFormProps {
@@ -46,7 +46,7 @@ export const ModalForm: FC<ModalFormProps> = ({
   const [assigneeId, setAssigneeId] = useState<number | null>(null) // исполнитель, к которому относится задача
 
   // Создание функции для получения задачи по ID а также обработки ее загрузки и получения ошибки
-  const [fetchIssue, isIssueLoading, issueError] = useFetching(async (id: number) => {
+  const [fetchIssue] = useFetching(async (id: number) => {
     const { data } = await IssueService.getById(id)
 
     // Поиск проекта (доски) в списке по названию для получения ID
@@ -64,14 +64,14 @@ export const ModalForm: FC<ModalFormProps> = ({
   // При открытии формы в режиме редактирования и наличии ID задачи загружаются данные задачи
   useEffect(() => {
     if (open) {
-    if (mode === 'create') {
-      setStatus(Status.Backlog)
-    }
+      if (mode === 'create') {
+        setStatus(Status.Backlog)
+      }
 
-    if (mode === 'edit' && issueId) {
-      fetchIssue(issueId)
+      if (mode === 'edit' && issueId) {
+        fetchIssue(issueId)
+      }
     }
-  }
   }, [issueId, open, mode])
 
   // Очищение формы после закрытия модального окна
@@ -193,7 +193,7 @@ export const ModalForm: FC<ModalFormProps> = ({
           />
 
           <Grid container spacing={2} mt={1} justifyContent='space-between'>
-            {/* Кнопка для перезода на страницу проекта (доски), 
+            {/* Кнопка для перехода на страницу проекта (доски), 
             доступна только на странице всех задач */}
             <Grid>
               {fromPage === 'issues' && boardId && (
